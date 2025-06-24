@@ -21,28 +21,7 @@ class LinkedinBrowserAgent:
         self.browser_url = browser_url or os.getenv('BROWSER_DEBUG_URL', "http://127.0.0.1:9222")
         self.browser = None
         self.context = None
-        self.llm = ChatOpenAI(model="gpt-4o-mini")
-        
-    # async def _initialize_browser(self):
-    #     """Initialize browser and context if not already done."""
-    #     if not self.browser:
-    #         try:
-    #             # Initialize browser with config
-    #             browser_config = BrowserConfig(cdp_url=self.browser_url)
-    #             self.browser = Browser(config=browser_config)
-                
-    #             # Initialize context with config
-    #             context_config = BrowserContextConfig(
-    #                 wait_for_network_idle_page_load_time=10.0,
-    #                 highlight_elements=True
-    #             )
-    #             self.context = BrowserContext(self.browser, context_config)
-                
-    #             print("Browser session initialized successfully")
-    #         except Exception as e:
-    #             print(f"Error initializing browser session: {str(e)}")
-    #             raise
-    #     return self.browser, self.context
+        self.llm = ChatOpenAI(model="gpt-4o")
     
     async def get_profile_data(self, profile_url: str) -> Optional[Dict[str, Any]]:
         """
