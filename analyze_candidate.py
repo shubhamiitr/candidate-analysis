@@ -62,13 +62,21 @@ Finally, give a clear recommendation using one of these 5 levels: Strongly Short
 
 def main():
     candidates = [
-        {
-            'github': 'https://github.com/sroecker',
-            'job_profile': 'product_engineer'
-        },
+        # {
+        #     'github': 'https://github.com/sroecker',
+        #     'job_profile': 'product_engineer'
+        # },
         # This candidate has a LinkedIn URL in their GitHub profile (for testing LinkedIn extraction)
         {
             'github': 'https://github.com/aosan',
+            'job_profile': 'product_engineer'
+        },
+        {
+            'github': 'https://github.com/taranjeet',
+            'job_profile': 'product_engineer'
+        },
+        {
+            'github': 'https://github.com/Gimmyalex',
             'job_profile': 'product_engineer'
         }
     ]

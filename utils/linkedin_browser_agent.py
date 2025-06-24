@@ -2,8 +2,7 @@ import os
 import asyncio
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
-from browser_use import Agent
-from browser_use.browser.browser import Browser, BrowserConfig, BrowserContext, BrowserContextConfig
+from browser_use import Agent, BrowserSession
 from langchain_openai import ChatOpenAI
 
 # Load environment variables
@@ -24,27 +23,27 @@ class LinkedinBrowserAgent:
         self.context = None
         self.llm = ChatOpenAI(model="gpt-4o-mini")
         
-    async def _initialize_browser(self):
-        """Initialize browser and context if not already done."""
-        if not self.browser:
-            try:
-                # Initialize browser with config
-                browser_config = BrowserConfig(cdp_url=self.browser_url)
-                self.browser = Browser(config=browser_config)
+    # async def _initialize_browser(self):
+    #     """Initialize browser and context if not already done."""
+    #     if not self.browser:
+    #         try:
+    #             # Initialize browser with config
+    #             browser_config = BrowserConfig(cdp_url=self.browser_url)
+    #             self.browser = Browser(config=browser_config)
                 
-                # Initialize context with config
-                context_config = BrowserContextConfig(
-                    wait_for_network_idle_page_load_time=10.0,
-                    highlight_elements=True
-                )
-                self.context = BrowserContext(self.browser, context_config)
+    #             # Initialize context with config
+    #             context_config = BrowserContextConfig(
+    #                 wait_for_network_idle_page_load_time=10.0,
+    #                 highlight_elements=True
+    #             )
+    #             self.context = BrowserContext(self.browser, context_config)
                 
-                print("Browser session initialized successfully")
-            except Exception as e:
-                print(f"Error initializing browser session: {str(e)}")
-                raise
-        return self.browser, self.context
-        
+    #             print("Browser session initialized successfully")
+    #         except Exception as e:
+    #             print(f"Error initializing browser session: {str(e)}")
+    #             raise
+    #     return self.browser, self.context
+    
     async def get_profile_data(self, profile_url: str) -> Optional[Dict[str, Any]]:
         """
         Extract LinkedIn profile data using browser automation.
@@ -57,12 +56,17 @@ class LinkedinBrowserAgent:
         """
         try:
             # Only print on error or final result
-            browser, context = await self._initialize_browser()
+            #  browser, context = await self._initialize_browser()
+
+            session = BrowserSession(cdp_url="http://127.0.0.1:9222")
+
+
             extraction_task = f"""
             Navigate directly to {profile_url} and extract the profile information.
             Steps:
-            1. Go directly to {profile_url}
-            2. Extract the following information:
+            1. REMEMBER the most important RULE: ALWAYS open first a new tab.
+            2. Go directly to {profile_url}. Ensure that URL is {profile_url}. Otherwise, stop here & fail the task.
+            3. Extract the following information:
                - Name
                - Headline (job title and company)
                - Location
@@ -74,15 +78,19 @@ class LinkedinBrowserAgent:
             Do not search Google or use any search engine. Go directly to the provided URL.
             Return the data as a JSON object with keys: Name, Headline, Location, Current Position, Previous Experience, Education, Skills, About.
             If any information is not available, mark it as \"Not available\".
+
+            DO IT IN ONE SHOT. Don't unnecessary reiterate.
             """
             agent = Agent(
                 task=extraction_task,
-                browser=browser,
-                browser_context=context,
+                # browser=browser,
+                # browser_context=context,
+                browser_session=session,
                 llm=self.llm,
                 max_failures=3,
                 retry_delay=5,
-                max_actions_per_step=3
+                max_actions_per_step=3,
+                use_vision=False,
             )
             result = await agent.run(max_steps=10)
             if result:
